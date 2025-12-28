@@ -69,20 +69,26 @@ class Model:
     
     def _auto_job_name(self, run: Run) -> str:
         """
-        Generate a SLURM-friendly job name from the run folder path,
-        relative to the model root, but one level up.
+        Generate a SLURM-friendly job name as:
+
+            <root_folder>_<first_subfolder>
+
+        Examples:
+            root/A/B/main.tcl   -> root_A
+            root/A/main.tcl     -> root_A
+            root/main.tcl       -> root
         """
         run_path = Path(run.path).resolve()
         rel = run_path.relative_to(self.path)
 
-        # Drop the last folder (one level up)
-        parts = rel.parts[:-1]
+        root = self.path.name
 
-        # folder1/folder2 -> folder1
-        name = "_".join(parts)
+        if rel.parts:
+            name = f"{root}_{rel.parts[0]}"
+        else:
+            name = root
 
-        # SLURM safety: avoid empty names
-        return name or self.path.name
+        return name
 
 
     # ----------------------------- submission ---------------------------- #
