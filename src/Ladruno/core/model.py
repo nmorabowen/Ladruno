@@ -70,13 +70,16 @@ class Model:
     def _auto_job_name(self, run: Run) -> str:
         """
         Generate a SLURM-friendly job name from the run folder path,
-        relative to the model root.
+        relative to the model root, but one level up.
         """
         run_path = Path(run.path).resolve()
         rel = run_path.relative_to(self.path)
 
-        # folder1/folder2 -> folder1_folder2
-        name = "_".join(rel.parts)
+        # Drop the last folder (one level up)
+        parts = rel.parts[:-1]
+
+        # folder1/folder2 -> folder1
+        name = "_".join(parts)
 
         # SLURM safety: avoid empty names
         return name or self.path.name
